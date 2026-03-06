@@ -1,6 +1,8 @@
-import { Users, FlaskConical, GitCompareArrows, TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { useState } from 'react';
+import { Users, FlaskConical, GitCompareArrows, TrendingUp, ArrowUpRight, ArrowDownRight, Plus } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { patients, clinicalTrials, matches, matchesOverTime, recentMatches } from '../data/mockData';
+import NewTrialModal from '../components/NewTrialModal';
 
 const stats = [
   {
@@ -65,12 +67,28 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export default function Dashboard() {
+  const [showNewTrial, setShowNewTrial] = useState(false);
+
+  const handleTrialSubmit = (data) => {
+    console.log('New trial submitted:', data);
+    // TODO: connect to backend API
+  };
+
   return (
     <div className="space-y-8">
       {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
-        <p className="text-sm text-slate-500 mt-1">Overview of clinical trial matching activity</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
+          <p className="text-sm text-slate-500 mt-1">Overview of clinical trial matching activity</p>
+        </div>
+        <button
+          onClick={() => setShowNewTrial(true)}
+          className="flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 px-5 py-2.5 rounded-xl shadow-md shadow-violet-200 hover:shadow-lg hover:shadow-violet-300 transition-all"
+        >
+          <Plus className="w-4 h-4" />
+          New Clinical Trial
+        </button>
       </div>
 
       {/* Stats Cards */}
@@ -167,6 +185,14 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* New Trial Modal */}
+      {showNewTrial && (
+        <NewTrialModal
+          onClose={() => setShowNewTrial(false)}
+          onSubmit={handleTrialSubmit}
+        />
+      )}
     </div>
   );
 }
