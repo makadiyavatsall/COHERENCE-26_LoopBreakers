@@ -3,6 +3,7 @@ import { Users, FlaskConical, GitCompareArrows, TrendingUp, ArrowUpRight, ArrowD
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { patients, clinicalTrials, matches, matchesOverTime, recentMatches } from '../data/mockData';
 import NewTrialModal from '../components/NewTrialModal';
+import Toast from '../components/Toast';
 
 const stats = [
   {
@@ -68,10 +69,24 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function Dashboard() {
   const [showNewTrial, setShowNewTrial] = useState(false);
+  const [toast, setToast] = useState(null);
 
-  const handleTrialSubmit = (data) => {
-    console.log('New trial submitted:', data);
-    // TODO: connect to backend API
+  const handleTrialSubmit = async (data) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/trials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      if (result.success) {
+        setToast({ message: `Trial created successfully! ID: ${result.data.trial_id}`, type: 'success' });
+      } else {
+        setToast({ message: `Error: ${result.message}`, type: 'error' });
+      }
+    } catch (error) {
+      setToast({ message: `Failed to connect to server: ${error.message}`, type: 'error' });
+    }
   };
 
   return (
@@ -191,6 +206,15 @@ export default function Dashboard() {
         <NewTrialModal
           onClose={() => setShowNewTrial(false)}
           onSubmit={handleTrialSubmit}
+        />
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
         />
       )}
     </div>
